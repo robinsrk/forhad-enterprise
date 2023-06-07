@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "22784897333",
+    "project_id": "forhad-enterprise",
+    "storage_bucket": "forhad-enterprise.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22784897333:android:8e83f3c5a09327a8595c7c",
+        "android_client_info": {
+          "package_name": "com.example.kisty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "22784897333-rbs765k0jo5u38pnvnldind326n99ecv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsAPWAwl40VFxoe02z70eFIsykUPYPefk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "22784897333-rbs765k0jo5u38pnvnldind326n99ecv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
