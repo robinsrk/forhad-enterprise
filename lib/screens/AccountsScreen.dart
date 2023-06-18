@@ -141,9 +141,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
         hisRef.push().set(historyData);
         dbRef.push().set(newData);
       }
-    }).catchError((error) {
-      print('Error retrieving data: $error');
-    });
+    }).catchError((error) {});
   }
 
   @override
@@ -266,7 +264,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                             data['due'] < 0
                                 ? ((data['due'] % data['collection'] == 0)
                                     ? "${(data['due'] / data['collection'] * -1).toInt()} days"
-                                    : "${data['due']} tk")
+                                    : "${data['due'] * -1} tk")
                                 : "${data['due']} tk",
                             // data['due'] > 0
                             //     ? "data['due']"
