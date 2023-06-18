@@ -46,6 +46,8 @@ dependencies:
   intl: ^0.18.1
   flutter_native_splash: ^2.3.0
   flutter_screen_lock: ^9.0.1
+  auto_size_text: ^3.0.0
+  magic_text: ^0.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

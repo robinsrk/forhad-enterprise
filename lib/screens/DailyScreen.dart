@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class _DailyScreenState extends State<DailyScreen> {
     await accRef.orderByChild("name").get().then((snapshot) {
       for (var element in snapshot.children) {
         Map data = element.value as Map;
-        if (data['loan'] > 0) {
+        if (data['left'] > 0) {
           accounts.add(data['name'].toString());
         }
         setState(() {
@@ -87,7 +88,7 @@ class _DailyScreenState extends State<DailyScreen> {
   void openDialog() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("Collection: $coll"),
+          title: const Text("Collection: "),
           content:
               StatefulBuilder(builder: (BuildContext context, StateSetter set) {
             _setState = set;
@@ -175,28 +176,6 @@ class _DailyScreenState extends State<DailyScreen> {
             panaraDialogType: PanaraDialogType.error,
             barrierDismissible: false, // optional parameter (default is true)
           );
-        } else if (value['due'] == paid) {
-          setState(() {
-            currentAccount = "${value['name']} {closed}";
-            number = value['number'];
-            due = value['due'] + value['collection'] - paid;
-
-            Map<String, dynamic> newData = {
-              'name': currentAccount,
-              'number': number,
-              'paid': paid,
-              'due': due,
-              'day': DateTime.now().day.toString(),
-              'month': DateTime.now().month.toString(),
-              'year': DateTime.now().year.toString(),
-            };
-            dbRef.push().set(newData);
-            FirebaseDatabase.instance
-                .ref()
-                .child("accounts")
-                .child(key)
-                .update({'due': due, 'name': currentAccount});
-          });
         } else {
           setState(() {
             currentAccount = value['name']
@@ -230,15 +209,14 @@ class _DailyScreenState extends State<DailyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Daily Collection"),
-            isSelected[0]
-                ? Text(
-                    "Total: ${NumberFormat("##,##,###").format(total)} Due: ${NumberFormat("##,##,###").format(totalDue)}")
-                : const Text(""),
-          ],
+        title: FittedBox(
+          fit: BoxFit.fill,
+          alignment: Alignment.topRight,
+          child: isSelected[0]
+              ? AutoSizeText(
+                  "Total: ${NumberFormat("##,##,###").format(total)} Due: ${NumberFormat("##,##,###").format(totalDue)}",
+                )
+              : const Text(""),
         ),
         backgroundColor: Colors.green,
       ),
@@ -354,13 +332,22 @@ class _DailyScreenState extends State<DailyScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
-                                  "${NumberFormat("##,##,###").format(data['paid'])} tk",
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
+                                if (data['paid'] > 0)
+                                  Text(
+                                    "${NumberFormat("##,##,###").format(data['paid'])} tk",
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                else
+                                  const Text(
+                                    "Due",
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
                                 Text(
                                   "${NumberFormat("##,##,###").format(data['due'])} tk",
                                   style: const TextStyle(
@@ -450,13 +437,22 @@ class _DailyScreenState extends State<DailyScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                "${NumberFormat("##,##,###").format(data['paid'])} tk",
-                                style: const TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
+                              if (data['paid'] > 0)
+                                Text(
+                                  "${NumberFormat("##,##,###").format(data['paid'])} tk",
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              else
+                                const Text(
+                                  "Due",
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
                               Text(
                                 "${NumberFormat("##,##,###").format(data['due'])} tk",
                                 style: const TextStyle(

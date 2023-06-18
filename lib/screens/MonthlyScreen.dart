@@ -86,13 +86,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Monthly Screen"),
-            Text("Total: ${NumberFormat("##,##,###").format(total)}"),
-          ],
-        ),
+        title: const Text("Monthly calculation"),
         backgroundColor: Colors.blue,
       ),
       body: FirebaseAnimatedList(

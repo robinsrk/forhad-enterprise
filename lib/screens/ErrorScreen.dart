@@ -21,11 +21,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
         fit: StackFit.expand,
         children: [
           Lottie.asset(
-            "assets/lottie/storage.json",
-            // fit: BoxFit.cover,
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            animate: true,
+            "assets/lottie/no-data.json",
           ),
         ],
       ),

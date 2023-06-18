@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:forhad_enterprise/screens/UserHistory.dart';
 import 'package:intl/intl.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,10 +17,10 @@ class AccountsScreen extends StatefulWidget {
 class _AccountsScreenState extends State<AccountsScreen> {
   late DatabaseReference dbRef;
   late DatabaseReference monRef;
+  late DatabaseReference hisRef;
   late String account;
   late String number;
   late int loan;
-  late int dep;
   late int collection;
   late int due = 0;
   bool isVisible = true;
@@ -32,6 +33,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
 
   Future get() async {
     dbRef = FirebaseDatabase.instance.ref().child('accounts');
+    hisRef = FirebaseDatabase.instance.ref().child('history');
     await dbRef.child('accounts').once();
     await dbRef.get().then((value) {
       if (value.value != null) {
@@ -43,31 +45,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
         });
       }
     });
-  }
-
-  void openDeposit(String name) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Enter information"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              autofocus: true,
-              onChanged: (value) => {dep = int.parse(value)},
-              decoration: InputDecoration(hintText: "Account $name"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => submit(name),
-            child: const Text("Submit"),
-          )
-        ],
-      ),
-    );
   }
 
   Future openDialog() => showDialog(
@@ -108,19 +85,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
           ],
         ),
       );
-
-  Future<void> submit(String name) async {
-    Navigator.of(context).pop();
-
-    await dbRef.orderByChild("name").equalTo(name).get().then((snap) async {
-      Map value = snap.value as Map;
-      value.forEach((key, value) {
-        FirebaseDatabase.instance.ref().child("accounts").child(key).update({
-          'left': value['left'] - dep,
-        });
-      });
-    });
-  }
 
   Future<void> press() async {
     Navigator.of(context).pop();
@@ -166,6 +130,15 @@ class _AccountsScreenState extends State<AccountsScreen> {
           'month': DateTime.now().month.toString(),
           'year': DateTime.now().year.toString(),
         };
+        Map<String, dynamic> historyData = {
+          'name': account,
+          'amount': -loan,
+          'balance': loan,
+          'day': DateTime.now().day.toString(),
+          'month': DateTime.now().month.toString(),
+          'year': DateTime.now().year.toString(),
+        };
+        hisRef.push().set(historyData);
         dbRef.push().set(newData);
       }
     }).catchError((error) {
@@ -227,7 +200,14 @@ class _AccountsScreenState extends State<AccountsScreen> {
                   onLongPress: () async {
                     launchUrl(Uri.parse("tel:${data['number']}"));
                   },
-                  onTap: () => openDeposit(data['name']),
+                  // onTap: () => openDeposit(data['name']),
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserHistory(
+                                accountName: data['name'],
+                                collection: data['collection'],
+                              ))),
                   isThreeLine: true,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -235,7 +215,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                   trailing: IconButton(
                     icon: Icon(
                       Icons.account_circle,
-                      color: data['loan'] > 0 ? Colors.green : Colors.red,
+                      color: data['left'] > 0 ? Colors.green : Colors.red,
                     ),
                     onPressed: () {
                       // dbRef.child(data['key']).remove().whenComplete(
@@ -260,7 +240,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(""),
                       Text(
                         "${data['day']}-${data['month']}-${data['year']}",
                         style: const TextStyle(
@@ -279,19 +258,32 @@ class _AccountsScreenState extends State<AccountsScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        // "${data['due']} tk",
-                        "${NumberFormat("#,##,##0").format(data['due'])} tk",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
+                      Column(
+                        children: [
+                          Text(
+                            // "${data['due']} tk",
+                            // "${NumberFormat("#,##,##0").format(data['due'])} tk",
+                            data['due'] < 0
+                                ? ((data['due'] % data['collection'] == 0)
+                                    ? "${(data['due'] / data['collection'] * -1).toInt()} days"
+                                    : "${data['due']} tk")
+                                : "${data['due']} tk",
+                            // data['due'] > 0
+                            //     ? "data['due']"
+                            //     : "data['collection']",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: data['due'] < 1
+                                    ? Colors.green
+                                    : Colors.red),
+                          ),
+                        ],
                       ),
                       Text(
                         "${NumberFormat("##,##,###").format(data['left'])} tk",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          // color: Colors.red,
                         ),
                       ),
                     ],
